@@ -4,11 +4,11 @@ import (
     "database/sql"
     "fmt"
     "log"
-    "github.com/lib/pq"
+    _ "github.com/lib/pq"
 )
 
 type User struct {
-    ID   		 int
+    ID   		int
     Password string
 }
 
@@ -34,5 +34,7 @@ func main() {
         log.Fatal(err)
     }
 
-    fmt.Println(user.ID, user.Password)
+    fmt.Println("Hello World")
+    fmt.Println(user.ID)
+    fmt.Println(user.Password)
 }

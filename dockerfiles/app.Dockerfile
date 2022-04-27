@@ -5,4 +5,5 @@ RUN mkdir $APP_HOME
 WORKDIR $APP_HOME
 ADD ../app $APP_HOME
 
-#RUN go get github.com/lib/pq
+RUN go mod init github.com/k-akari/go-example
+RUN go get github.com/lib/pq
