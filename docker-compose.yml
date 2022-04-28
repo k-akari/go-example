@@ -19,7 +19,7 @@ services:
       dockerfile: ./dockerfiles/app.Dockerfile
     command: /bin/ash
     volumes:
-      - .:/app
+      - .:/go/src/project
       - ~/.ssh:/root/.ssh # 要見直し
       - ~/.gitconfig:/root/.gitconfig # 要見直し
     stdin_open: true
