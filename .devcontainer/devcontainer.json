@@ -18,11 +18,5 @@
   },
   "extensions": [
     "golang.go",
-    "ms-azuretools.vscode-docker",
-    "eamodio.gitlens",
-    "mhutchie.git-graph",
-    "github.vscode-pull-request-github",
-    "redhat.vscode-yaml",
-    "ms-vscode-remote.remote-containers"
   ],
 }
