@@ -6,7 +6,6 @@ WORKDIR $APP_HOME
 ADD .. $APP_HOME
 
 RUN apk update && apk add git
-RUN go mod init github.com/k-akari/go-example
 
 # install go tools（自動補完等に必要なツールをコンテナにインストール）
 RUN go get github.com/uudashr/gopkgs/v2/cmd/gopkgs \
