@@ -3,6 +3,7 @@
   "dockerComposeFile": ["../docker-compose.yml"],
   "service": "app" ,
   "workspaceFolder": "/app",
+  "postCreateCommand": "apk update && apk add git openssh",
   "settings": {
     "terminal.integrated.shell.linux": "/bin/ash",
     "go.toolsManagement.checkForUpdates": "off",
