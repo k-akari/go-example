@@ -3,7 +3,7 @@ services:
   db:
     build:
       context: .
-      dockerfile: ./dockerfiles/db.Dockerfile
+      dockerfile: ./build/db.Dockerfile
     ports:
       - 5432:5432
     volumes:
@@ -16,7 +16,7 @@ services:
   app:
     build:
       context: .
-      dockerfile: ./dockerfiles/app.Dockerfile
+      dockerfile: ./build/app.Dockerfile
     command: /bin/ash
     volumes:
       - .:/go/src/project
