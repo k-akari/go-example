@@ -8,8 +8,6 @@ services:
       - 5432:5432
     volumes:
       - .:/app
-      - ~/.ssh:/root/.ssh #もっと良い方法を調べる
-      - ~/.gitconfig:/root/.gitconfig #もっと良い方法を調べる
       - db-store:/var/lib/postgresql/data
       - ./database:/docker-entrypoint-initdb.d
     environment:
