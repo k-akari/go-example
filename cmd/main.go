@@ -10,7 +10,8 @@ import (
 func main() {
 	mux := httprouter.New()
 
-	mux.GET("/user/:id", handler.ShowUser)
+	mux.GET("/users/:id", handler.ShowUser)
+	mux.GET("/users", handler.ShowUsers)
 
 	server := &http.Server{
 		Addr:           "0.0.0.0:8080",

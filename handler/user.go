@@ -1,10 +1,12 @@
 package handler
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"github.com/julienschmidt/httprouter"
 	"github.com/k-akari/go-example/repository"
+	"log"
 	"net/http"
 	"strconv"
 )
@@ -30,4 +32,21 @@ func ShowUser(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 
 	w.Header().Set("Content-Type", "application/json")
 	fmt.Fprint(w, string(jsonData))
+}
+
+func ShowUsers(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+	users, err := repository.AllUsers()
+	if err != nil {
+		fmt.Println("Cannot find users")
+		return
+	}
+
+	var buf bytes.Buffer
+	enc := json.NewEncoder(&buf)
+	if err := enc.Encode(&users); err != nil {
+		log.Fatal(err)
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	fmt.Fprint(w, buf.String())
 }
