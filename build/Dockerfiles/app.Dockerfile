@@ -5,8 +5,6 @@ RUN mkdir $APP_HOME
 WORKDIR $APP_HOME
 ADD .. $APP_HOME
 
-RUN apk update && apk add git
-
 # install go tools（自動補完等に必要なツールをコンテナにインストール）
 RUN go get github.com/uudashr/gopkgs/v2/cmd/gopkgs \
   github.com/ramya-rao-a/go-outline \
