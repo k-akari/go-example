@@ -22,11 +22,56 @@ func ShowUser(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 
 	user, err := repository.UserById(id)
 	if err != nil {
-		fmt.Println("Cannot find user")
+		fmt.Println(err)
 		return
 	}
 
 	jsonData, err := json.Marshal(user)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	fmt.Fprint(w, string(jsonData))
+}
+
+type userUpdateRequest struct {
+	Name  string `json:"name"`
+	Email string `json:"email"`
+}
+
+func UpdateUser(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+	id, err := strconv.Atoi(p.ByName("id"))
+	if err != nil {
+		fmt.Println("Cannot find id of user")
+		return
+	}
+
+	body, err := ioutil.ReadAll(io.LimitReader(r.Body, 1048576)) // 1MiB
+	if err != nil {
+		panic(err)
+	}
+	defer r.Body.Close()
+
+	var reqParams userUpdateRequest
+	if err := json.Unmarshal(body, &reqParams); err != nil {
+		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+		w.WriteHeader(500)
+		if err := json.NewEncoder(w).Encode(err); err != nil {
+			panic(err)
+		}
+		return
+	}
+
+	user := repository.User{Id: id, Name: reqParams.Name, Email: reqParams.Email}
+	response, err := repository.UpdateUser(user)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	jsonData, err := json.Marshal(response)
 	if err != nil {
 		fmt.Println(err)
 		return

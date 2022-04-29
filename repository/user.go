@@ -21,6 +21,19 @@ func UserById(id int) (user User, err error) {
 	return
 }
 
+func UpdateUser(inUser User) (outUser User, err error) {
+	statement := "update users set name = $2, email = $3 where id = $1 returning *"
+	stmt, err := Db.Prepare(statement)
+	if err != nil {
+		return
+	}
+	defer stmt.Close()
+
+	err = stmt.QueryRow(inUser.Id, inUser.Name, inUser.Email).
+		Scan(&outUser.Id, &outUser.Uuid, &outUser.Name, &outUser.Email, &outUser.Password, &outUser.CreatedAt)
+	return
+}
+
 func DeleteUser(id int) (err error) {
 	statement := "delete from users where id = $1"
 	stmt, err := Db.Prepare(statement)
