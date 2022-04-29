@@ -3,12 +3,12 @@ services:
   db:
     build:
       context: .
-      dockerfile: ./build/db.Dockerfile
+      dockerfile: ./build/Dockerfiles/db.Dockerfile
     ports:
       - 5432:5432
     volumes:
       - db-store:/var/lib/postgresql/data
-      - ./web/database:/docker-entrypoint-initdb.d
+      - ./build/database:/docker-entrypoint-initdb.d
     environment:
       - POSTGRES_USER=user
       - POSTGRES_PASSWORD=password
@@ -16,7 +16,7 @@ services:
   app:
     build:
       context: .
-      dockerfile: ./build/app.Dockerfile
+      dockerfile: ./build/Dockerfiles/app.Dockerfile
     command: /bin/ash
     volumes:
       - .:/go/src/project
