@@ -1,15 +1,16 @@
 package main
 
 import (
+	"github.com/julienschmidt/httprouter"
 	"github.com/k-akari/go-example/handler"
 	"net/http"
 	"time"
 )
 
 func main() {
-	mux := http.NewServeMux()
+	mux := httprouter.New()
 
-	mux.HandleFunc("/show", handler.ShowUser)
+	mux.GET("/user/:id", handler.ShowUser)
 
 	server := &http.Server{
 		Addr:           "0.0.0.0:8080",
