@@ -21,6 +21,18 @@ func UserById(id int) (user User, err error) {
 	return
 }
 
+func DeleteUser(id int) (err error) {
+	statement := "delete from users where id = $1"
+	stmt, err := Db.Prepare(statement)
+	if err != nil {
+		return
+	}
+	defer stmt.Close()
+
+	_, err = stmt.Exec(id)
+	return
+}
+
 func AllUsers() (users []User, err error) {
 	rows, err := Db.Query("SELECT * FROM users")
 	if err != nil {

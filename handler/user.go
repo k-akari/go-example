@@ -36,6 +36,22 @@ func ShowUser(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 	fmt.Fprint(w, string(jsonData))
 }
 
+func DeleteUser(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+	id, err := strconv.Atoi(p.ByName("id"))
+	if err != nil {
+		fmt.Println("Cannot find id of user")
+		return
+	}
+
+	if err := repository.DeleteUser(id); err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+}
+
 func ShowUsers(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	users, err := repository.AllUsers()
 	if err != nil {

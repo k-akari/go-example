@@ -11,6 +11,7 @@ func main() {
 	mux := httprouter.New()
 
 	mux.GET("/users/:id", handler.ShowUser)
+	mux.DELETE("/users/:id", handler.DeleteUser)
 	mux.GET("/users", handler.ShowUsers)
 	mux.POST("/users", handler.CreateUser)
 
