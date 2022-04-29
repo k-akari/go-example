@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"github.com/julienschmidt/httprouter"
 	"github.com/k-akari/go-example/repository"
+	"io"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"strconv"
@@ -48,5 +50,47 @@ func ShowUsers(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	}
 
 	w.Header().Set("Content-Type", "application/json")
+	fmt.Fprint(w, buf.String())
+}
+
+type userCreateRequest struct {
+	Name     string `json:"name"`
+	Email    string `json:"email"`
+	Password string `json:"password"`
+}
+
+func CreateUser(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+	body, err := ioutil.ReadAll(io.LimitReader(r.Body, 1048576)) // 1MiB
+	if err != nil {
+		panic(err)
+	}
+	defer r.Body.Close()
+
+	var reqParams userCreateRequest
+	if err := json.Unmarshal(body, &reqParams); err != nil {
+		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+		w.WriteHeader(500)
+		if err := json.NewEncoder(w).Encode(err); err != nil {
+			panic(err)
+		}
+		return
+	}
+
+	user := repository.User{Name: reqParams.Name, Email: reqParams.Email, Password: reqParams.Password}
+	response, err := repository.InsertUser(user)
+	if err != nil {
+		w.WriteHeader(500)
+		fmt.Println(err)
+		return
+	}
+
+	var buf bytes.Buffer
+	enc := json.NewEncoder(&buf)
+	if err := enc.Encode(&response); err != nil {
+		log.Fatal(err)
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(201)
 	fmt.Fprint(w, buf.String())
 }

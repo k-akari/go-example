@@ -40,3 +40,15 @@ func AllUsers() (users []User, err error) {
 
 	return
 }
+
+func InsertUser(inUser User) (outUser User, err error) {
+	statement := "INSERT INTO users (uuid, name, email, password, created_at) VALUES ($1, $2, $3, $4, $5) returning *"
+	stmt, err := Db.Prepare(statement)
+	if err != nil {
+		return
+	}
+	defer stmt.Close()
+	err = stmt.QueryRow(createUUID(), inUser.Name, inUser.Email, inUser.Password, time.Now()).
+		Scan(&outUser.Id, &outUser.Uuid, &outUser.Name, &outUser.Email, &outUser.Password, &outUser.CreatedAt)
+	return
+}
