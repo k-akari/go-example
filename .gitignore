@@ -22,7 +22,7 @@ coverage.html
 dist/
 
 # Visual Studio Code files
-.vscode/*
+.vscode/
 *.code-workspace
 
 # Local History for Visual Studio Code
