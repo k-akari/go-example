@@ -3,7 +3,7 @@ FROM golang:1.18-alpine
 ENV APP_HOME /go/src/project
 RUN mkdir $APP_HOME
 WORKDIR $APP_HOME
-ADD .. $APP_HOME
+ADD ../.. $APP_HOME
 
 # install go tools（自動補完等に必要なツールをコンテナにインストール）
 RUN go get github.com/uudashr/gopkgs/v2/cmd/gopkgs \
