@@ -1,7 +1,6 @@
 package repository
 
 import (
-	"fmt"
 	"time"
 )
 
@@ -22,22 +21,30 @@ func GetUser(id int) (user User, err error) {
 }
 
 func ListUsers() (users []User, err error) {
-	rows, err := Db.Query("SELECT * FROM users")
+	rows, err := Db.Query("SELECT id, uuid, name, email, password, created_at FROM users")
 	if err != nil {
-		fmt.Println("Cannot get users from database")
-		panic(err.Error())
+		return
 	}
-
-	user := User{}
 	for rows.Next() {
-		error := rows.Scan(&user.Id, &user.Uuid, &user.Name, &user.Email, &user.Password, &user.CreatedAt)
-		if error != nil {
-			fmt.Println("Cannot scan users")
+		user := User{}
+		err = rows.Scan(&user.Id, &user.Uuid, &user.Name, &user.Email, &user.Password, &user.CreatedAt)
+		if err != nil {
+			return
 		} else {
 			users = append(users, user)
 		}
 	}
+	return
+}
 
+func (user *User) Create() (err error) {
+	statement := "INSERT INTO users (uuid, name, email, password, created_at) VALUES ($1, $2, $3, $4, $5) returning id"
+	stmt, err := Db.Prepare(statement)
+	if err != nil {
+		return
+	}
+	defer stmt.Close()
+	err = stmt.QueryRow(user.Uuid, user.Name, user.Email, user.Password, time.Now()).Scan(&user.Id)
 	return
 }
 
@@ -63,17 +70,5 @@ func DeleteUser(id int) (err error) {
 	defer stmt.Close()
 
 	_, err = stmt.Exec(id)
-	return
-}
-
-func InsertUser(inUser User) (outUser User, err error) {
-	statement := "INSERT INTO users (uuid, name, email, password, created_at) VALUES ($1, $2, $3, $4, $5) returning *"
-	stmt, err := Db.Prepare(statement)
-	if err != nil {
-		return
-	}
-	defer stmt.Close()
-	err = stmt.QueryRow(createUUID(), inUser.Name, inUser.Email, inUser.Password, time.Now()).
-		Scan(&outUser.Id, &outUser.Uuid, &outUser.Name, &outUser.Email, &outUser.Password, &outUser.CreatedAt)
 	return
 }

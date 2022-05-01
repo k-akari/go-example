@@ -4,8 +4,9 @@ import (
 	"crypto/rand"
 	"database/sql"
 	"fmt"
-	_ "github.com/lib/pq"
 	"log"
+
+	_ "github.com/lib/pq"
 )
 
 var Db *sql.DB
@@ -19,7 +20,7 @@ func init() {
 	return
 }
 
-func createUUID() (uuid string) {
+func CreateUUID() (uuid string) {
 	u := new([16]byte)
 	_, err := rand.Read(u[:])
 	if err != nil {
