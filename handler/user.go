@@ -20,7 +20,7 @@ func ShowUser(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 		return
 	}
 
-	user, err := repository.UserById(id)
+	user, err := repository.GetUser(id)
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -34,6 +34,23 @@ func ShowUser(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 
 	w.Header().Set("Content-Type", "application/json")
 	fmt.Fprint(w, string(jsonData))
+}
+
+func ShowUsers(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+	users, err := repository.ListUsers()
+	if err != nil {
+		fmt.Println("Cannot find users")
+		return
+	}
+
+	var buf bytes.Buffer
+	enc := json.NewEncoder(&buf)
+	if err := enc.Encode(&users); err != nil {
+		log.Fatal(err)
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	fmt.Fprint(w, buf.String())
 }
 
 type userUpdateRequest struct {
@@ -95,23 +112,6 @@ func DeleteUser(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(200)
-}
-
-func ShowUsers(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-	users, err := repository.AllUsers()
-	if err != nil {
-		fmt.Println("Cannot find users")
-		return
-	}
-
-	var buf bytes.Buffer
-	enc := json.NewEncoder(&buf)
-	if err := enc.Encode(&users); err != nil {
-		log.Fatal(err)
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	fmt.Fprint(w, buf.String())
 }
 
 type userCreateRequest struct {
