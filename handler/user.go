@@ -127,13 +127,13 @@ func UpdateUser(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 	}
 
 	user := repository.User{Id: id, Name: reqParams.Name, Email: reqParams.Email}
-	response, err := repository.UpdateUser(user)
+	err = user.UpdateUser()
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
 
-	jsonData, err := json.Marshal(response)
+	jsonData, err := json.Marshal(user)
 	if err != nil {
 		fmt.Println(err)
 		return

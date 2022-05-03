@@ -48,16 +48,8 @@ func (user *User) Create() (err error) {
 	return
 }
 
-func UpdateUser(inUser User) (outUser User, err error) {
-	statement := "update users set name = $2, email = $3 where id = $1 returning *"
-	stmt, err := Db.Prepare(statement)
-	if err != nil {
-		return
-	}
-	defer stmt.Close()
-
-	err = stmt.QueryRow(inUser.Id, inUser.Name, inUser.Email).
-		Scan(&outUser.Id, &outUser.Uuid, &outUser.Name, &outUser.Email, &outUser.Password, &outUser.CreatedAt)
+func (user *User) UpdateUser() (err error) {
+	_, err = Db.Exec("update users set name = $2, email = $3 where id = $1", user.Id, user.Name, user.Email)
 	return
 }
 
