@@ -1,3 +1,4 @@
+// Package controller contains handler functions
 package controller
 
 import (
@@ -108,7 +109,7 @@ func createUser(w http.ResponseWriter, r *http.Request) (err error) {
 		return
 	}
 
-	user := repository.User{Uuid: repository.CreateUUID(), Name: reqParams.Name, Email: reqParams.Email, Password: reqParams.Password}
+	user := repository.User{UUID: repository.CreateUUID(), Name: reqParams.Name, Email: reqParams.Email, Password: reqParams.Password}
 	err = user.Create()
 	if err != nil {
 		w.WriteHeader(500)
@@ -153,7 +154,7 @@ func updateUser(w http.ResponseWriter, r *http.Request) (err error) {
 		return
 	}
 
-	user := repository.User{Id: id, Name: reqParams.Name, Email: reqParams.Email}
+	user := repository.User{ID: id, Name: reqParams.Name, Email: reqParams.Email}
 	err = user.Update()
 	if err != nil {
 		fmt.Println(err)

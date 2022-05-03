@@ -1,3 +1,4 @@
+// Package repository contains functions to interact with the database
 package repository
 
 import (
@@ -9,15 +10,14 @@ import (
 	_ "github.com/lib/pq"
 )
 
-var Db *sql.DB
+var DB *sql.DB
 
 func init() {
 	var err error
-	Db, err = sql.Open("postgres", "host=db user=user password=password dbname=database sslmode=disable")
+	DB, err = sql.Open("postgres", "host=db user=user password=password dbname=database sslmode=disable")
 	if err != nil {
 		log.Fatal(err)
 	}
-	return
 }
 
 func CreateUUID() (uuid string) {
