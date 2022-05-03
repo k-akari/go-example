@@ -5,6 +5,6 @@ RUN mkdir $APP_HOME
 WORKDIR $APP_HOME
 ADD ../.. $APP_HOME
 
-RUN apk update && apk add git openssh gcc libc-dev
+RUN apk update && apk add git openssh gcc libc-dev make
 
 RUN go install -v honnef.co/go/tools/cmd/staticcheck@latest && go install -v golang.org/x/tools/gopls@latest
