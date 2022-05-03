@@ -7,5 +7,4 @@ ADD ../.. $APP_HOME
 
 RUN apk update && apk add git openssh gcc libc-dev
 
-RUN go install -v golang.org/x/tools/gopls@latest \
-  honnef.co/go/tools/cmd/staticcheck@latest
+RUN go install -v honnef.co/go/tools/cmd/staticcheck@latest && go install -v golang.org/x/tools/gopls@latest
