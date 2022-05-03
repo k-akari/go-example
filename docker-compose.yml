@@ -16,7 +16,7 @@ services:
   app:
     build:
       context: .
-      dockerfile: ./build/app/Dockerfile
+      dockerfile: ./build/app/dev.Dockerfile
     command: /bin/ash
     volumes:
       - .:/go/src/project
