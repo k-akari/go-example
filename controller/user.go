@@ -30,7 +30,7 @@ func Users(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case "GET":
 		if path.Base(r.URL.Path) == "users" {
-			err = showUsers(w, r)
+			err = listUsers(w, r)
 		} else {
 			err = showUser(w, r)
 		}
@@ -73,7 +73,7 @@ func showUser(w http.ResponseWriter, r *http.Request) (err error) {
 	return
 }
 
-func showUsers(w http.ResponseWriter, r *http.Request) (err error) {
+func listUsers(w http.ResponseWriter, r *http.Request) (err error) {
 	users, err := repository.ListUsers()
 	if err != nil {
 		fmt.Println("Cannot find users")
