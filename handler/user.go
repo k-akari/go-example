@@ -8,9 +8,9 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"path"
 	"strconv"
 
-	"github.com/julienschmidt/httprouter"
 	"github.com/k-akari/go-example/repository"
 )
 
@@ -25,8 +25,32 @@ type userUpdateRequest struct {
 	Email string `json:"email"`
 }
 
-func ShowUser(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-	id, err := strconv.Atoi(p.ByName("id"))
+func Users(w http.ResponseWriter, r *http.Request) {
+	var err error
+	switch r.Method {
+	case "GET":
+		if path.Base(r.URL.Path) == "users" {
+			err = showUsers(w, r)
+		} else {
+			err = showUser(w, r)
+		}
+	case "POST":
+		err = createUser(w, r)
+	case "PATCH":
+		err = updateUser(w, r)
+	case "DELETE":
+		err = deleteUser(w, r)
+	default:
+		http.Error(w, r.Method+" method not allowed", http.StatusMethodNotAllowed)
+	}
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+}
+
+func showUser(w http.ResponseWriter, r *http.Request) (err error) {
+	id, err := strconv.Atoi(path.Base(r.URL.Path))
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -46,9 +70,10 @@ func ShowUser(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 
 	w.Header().Set("Content-Type", "application/json")
 	fmt.Fprint(w, string(jsonData))
+	return
 }
 
-func ShowUsers(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+func showUsers(w http.ResponseWriter, r *http.Request) (err error) {
 	users, err := repository.ListUsers()
 	if err != nil {
 		fmt.Println("Cannot find users")
@@ -63,9 +88,10 @@ func ShowUsers(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 
 	w.Header().Set("Content-Type", "application/json")
 	fmt.Fprint(w, buf.String())
+	return
 }
 
-func CreateUser(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+func createUser(w http.ResponseWriter, r *http.Request) (err error) {
 	body, err := ioutil.ReadAll(io.LimitReader(r.Body, 1048576)) // 1MiB
 	if err != nil {
 		panic(err)
@@ -73,7 +99,7 @@ func CreateUser(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	defer r.Body.Close()
 
 	var reqParams userCreateRequest
-	if err := json.Unmarshal(body, &reqParams); err != nil {
+	if err = json.Unmarshal(body, &reqParams); err != nil {
 		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 		w.WriteHeader(500)
 		if err := json.NewEncoder(w).Encode(err); err != nil {
@@ -92,7 +118,7 @@ func CreateUser(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 
 	var buf bytes.Buffer
 	enc := json.NewEncoder(&buf)
-	if err := enc.Encode(&user); err != nil {
+	if err = enc.Encode(&user); err != nil {
 		w.WriteHeader(500)
 		fmt.Println(err)
 		return
@@ -101,12 +127,13 @@ func CreateUser(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(201)
 	fmt.Fprint(w, buf.String())
+	return
 }
 
-func UpdateUser(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-	id, err := strconv.Atoi(p.ByName("id"))
+func updateUser(w http.ResponseWriter, r *http.Request) (err error) {
+	id, err := strconv.Atoi(path.Base(r.URL.Path))
 	if err != nil {
-		fmt.Println("Cannot find id of user")
+		fmt.Println(err)
 		return
 	}
 
@@ -117,7 +144,7 @@ func UpdateUser(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 	defer r.Body.Close()
 
 	var reqParams userUpdateRequest
-	if err := json.Unmarshal(body, &reqParams); err != nil {
+	if err = json.Unmarshal(body, &reqParams); err != nil {
 		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 		w.WriteHeader(500)
 		if err := json.NewEncoder(w).Encode(err); err != nil {
@@ -141,12 +168,13 @@ func UpdateUser(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 
 	w.Header().Set("Content-Type", "application/json")
 	fmt.Fprint(w, string(jsonData))
+	return
 }
 
-func DeleteUser(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-	id, err := strconv.Atoi(p.ByName("id"))
+func deleteUser(w http.ResponseWriter, r *http.Request) (err error) {
+	id, err := strconv.Atoi(path.Base(r.URL.Path))
 	if err != nil {
-		fmt.Println("Cannot find id of user")
+		fmt.Println(err)
 		return
 	}
 
@@ -156,11 +184,12 @@ func DeleteUser(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 		return
 	}
 
-	if err := user.Delete(); err != nil {
+	if err = user.Delete(); err != nil {
 		fmt.Println(err)
 		return
 	}
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(200)
+	return
 }
