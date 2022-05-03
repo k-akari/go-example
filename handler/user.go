@@ -150,7 +150,13 @@ func DeleteUser(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 		return
 	}
 
-	if err := repository.DeleteUser(id); err != nil {
+	user, err := repository.GetUser(id)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	if err := user.Delete(); err != nil {
 		fmt.Println(err)
 		return
 	}

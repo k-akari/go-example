@@ -44,6 +44,7 @@ func (user *User) Create() (err error) {
 		return
 	}
 	defer stmt.Close()
+
 	err = stmt.QueryRow(user.Uuid, user.Name, user.Email, user.Password, time.Now()).Scan(&user.Id)
 	return
 }
@@ -53,14 +54,7 @@ func (user *User) Update() (err error) {
 	return
 }
 
-func DeleteUser(id int) (err error) {
-	statement := "delete from users where id = $1"
-	stmt, err := Db.Prepare(statement)
-	if err != nil {
-		return
-	}
-	defer stmt.Close()
-
-	_, err = stmt.Exec(id)
+func (user *User) Delete() (err error) {
+	_, err = Db.Exec("delete from users where id = $1", user.Id)
 	return
 }
