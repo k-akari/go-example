@@ -4,11 +4,11 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/k-akari/go-example/handler"
+	"github.com/k-akari/go-example/controller"
 )
 
 func main() {
-	http.HandleFunc("/users/", handler.Users)
+	http.HandleFunc("/users/", controller.Users)
 
 	server := &http.Server{
 		Addr:           "0.0.0.0:8080",
