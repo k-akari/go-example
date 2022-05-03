@@ -48,7 +48,7 @@ func (user *User) Create() (err error) {
 	return
 }
 
-func (user *User) UpdateUser() (err error) {
+func (user *User) Update() (err error) {
 	_, err = Db.Exec("update users set name = $2, email = $3 where id = $1", user.Id, user.Name, user.Email)
 	return
 }
