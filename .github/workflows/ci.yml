@@ -9,13 +9,7 @@ on:
 
 jobs:
   ci:
-    name: "Run CI"
-    strategy:
-      fail-fast: false
-      matrix:
-        os: ["ubuntu-latest"]
-        go: ["1.18.x"]
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v2
