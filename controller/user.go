@@ -77,7 +77,7 @@ func showUser(w http.ResponseWriter, r *http.Request) (err error) {
 func listUsers(w http.ResponseWriter, r *http.Request) (err error) {
 	users, err := repository.ListUsers()
 	if err != nil {
-		fmt.Println("Cannot find users")
+		fmt.Println(err)
 		return
 	}
 
