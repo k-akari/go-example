@@ -29,10 +29,8 @@ jobs:
             ${{ runner.os }}-go-
       - name: Build
         run: go build -v ./...
-      - uses: reviewdog/action-staticcheck@v1
-        with:
-          filter_mode: diff_context
-          fail_on_error: true
+      - name: Staticcheck
+        uses: dominikh/staticcheck-action@v1.2.0
       - name: Run test
         run: make test
       - uses: codecov/codecov-action@v1
