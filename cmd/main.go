@@ -5,10 +5,11 @@ import (
 	"time"
 
 	"github.com/k-akari/go-example/controller"
+	"github.com/k-akari/go-example/repository"
 )
 
 func main() {
-	http.HandleFunc("/users/", controller.Users)
+	http.HandleFunc("/users/", controller.HandleUsers(&repository.User{Db: repository.DB}))
 
 	server := &http.Server{
 		Addr:           "0.0.0.0:8080",

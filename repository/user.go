@@ -1,26 +1,35 @@
 package repository
 
 import (
+	"database/sql"
 	"time"
 )
 
-type User struct {
-	ID        int
-	UUID      string
-	Name      string
-	Email     string
-	Password  string
-	CreatedAt time.Time
+type IUser interface {
+	Fetch(id int) (err error)
+	List() (users []User, err error)
+	Create() (err error)
+	Update() (err error)
+	Delete() (err error)
 }
 
-func GetUser(id int) (user User, err error) {
-	user = User{}
+type User struct {
+	Db        *sql.DB
+	ID        int       `json:"id"`
+	UUID      string    `json:"uuid"`
+	Name      string    `json:"name"`
+	Email     string    `json:"email"`
+	Password  string    `json:"password"`
+	CreatedAt time.Time `json:"created_at"`
+}
+
+func (user *User) Fetch(id int) (err error) {
 	err = DB.QueryRow("SELECT id, uuid, name, email, password, created_at FROM users WHERE id = $1", id).
 		Scan(&user.ID, &user.UUID, &user.Name, &user.Email, &user.Password, &user.CreatedAt)
 	return
 }
 
-func ListUsers() (users []User, err error) {
+func (user *User) List() (users []User, err error) {
 	rows, err := DB.Query("SELECT id, uuid, name, email, password, created_at FROM users")
 	if err != nil {
 		return
