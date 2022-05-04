@@ -8,24 +8,16 @@ on:
       - develop
 
 jobs:
-  golangci:
+  ci:
     name: "Run CI"
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest]
-        go: [1.18.x]
+        os: ["ubuntu-latest"]
+        go: ["1.18.x"]
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-	    - uses: WillAbides/setup-go-faster@v1.7.0
-	      with:
-	    	go-version: ${{ matrix.go }}
 	    - run: "go test ./..."
 	    - run: "go vet ./..."
-	    - uses: dominikh/staticcheck-action@v1.1.0
-	      with:
-	    	version: "2021.1.1"
-	    	install-go: false
-	    	cache-key: ${{ matrix.go }}
