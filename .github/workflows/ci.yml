@@ -20,4 +20,3 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
       - run: "go test ./..."
-	    - run: "go vet ./..."
