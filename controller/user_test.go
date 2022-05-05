@@ -4,79 +4,69 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
-	"os"
 	"strings"
 	"testing"
 
 	"github.com/k-akari/go-example/repository"
+	. "gopkg.in/check.v1"
 )
 
-var (
+type UserTestSuite struct {
 	mux    *http.ServeMux
+	user   *repository.FakeUser
 	writer *httptest.ResponseRecorder
-)
-
-func TestMain(m *testing.M) {
-	setUp()
-	code := m.Run()
-	os.Exit(code)
 }
 
-func setUp() {
-	mux = http.NewServeMux()
-	mux.HandleFunc("/users/", HandleUsers(&repository.FakeUser{}))
-	writer = httptest.NewRecorder()
+func init() {
+	Suite(&UserTestSuite{})
 }
 
-func TestShowUser(t *testing.T) {
+func Test(t *testing.T) { TestingT(t) }
+
+func (s *UserTestSuite) SetUpTest(c *C) {
+	s.user = &repository.FakeUser{}
+	s.mux = http.NewServeMux()
+	s.mux.HandleFunc("/users/", HandleUsers(&repository.FakeUser{}))
+	s.writer = httptest.NewRecorder()
+}
+
+func (s *UserTestSuite) TestShowUser(c *C) {
 	request, _ := http.NewRequest("GET", "/users/1", nil)
-	mux.ServeHTTP(writer, request)
+	s.mux.ServeHTTP(s.writer, request)
 
-	if writer.Code != 200 {
-		t.Errorf("Response code is %v", writer.Code)
-	}
+	c.Check(s.writer.Code, Equals, 200)
 
 	var user repository.User
-	json.Unmarshal(writer.Body.Bytes(), &user)
-	if user.ID != 1 {
-		t.Error("Cannot retrieve JSON user")
-	}
+	json.Unmarshal(s.writer.Body.Bytes(), &user)
+	c.Check(user.ID, Equals, 1)
 }
 
-func TestListUser(t *testing.T) {
+func (s *UserTestSuite) TestListUser(c *C) {
 	request, _ := http.NewRequest("GET", "/users/", nil)
-	mux.ServeHTTP(writer, request)
+	s.mux.ServeHTTP(s.writer, request)
 
-	if writer.Code != 200 {
-		t.Errorf("Response code is %v", writer.Code)
-	}
+	c.Check(s.writer.Code, Equals, 200)
 }
 
-func TestCreateUser(t *testing.T) {
+func (s *UserTestSuite) TestCreateUser(c *C) {
 	json := strings.NewReader(`{"name":"username1", "email":"name1@email.com", "password":"password"}`)
 	request, _ := http.NewRequest("POST", "/users/", json)
-	mux.ServeHTTP(writer, request)
+	s.mux.ServeHTTP(s.writer, request)
 
-	if writer.Code != 200 {
-		t.Errorf("Response code is %v", writer.Code)
-	}
+	c.Check(s.writer.Code, Equals, 200)
 }
 
-func TestUpdateUser(t *testing.T) {
+func (s *UserTestSuite) TestUpdateUser(c *C) {
 	json := strings.NewReader(`{"name":"updated_name", "email":"updated_name@email.com"}`)
 	request, _ := http.NewRequest("PATCH", "/users/1", json)
-	mux.ServeHTTP(writer, request)
+	s.mux.ServeHTTP(s.writer, request)
 
-	if writer.Code != 200 {
-		t.Errorf("Response code is %v", writer.Code)
-	}
+	c.Check(s.writer.Code, Equals, 200)
 }
 
-func TestDeleteUser(t *testing.T) {
+func (s *UserTestSuite) TestDeleteUser(c *C) {
 	request, _ := http.NewRequest("DELETE", "/users/1", nil)
-	mux.ServeHTTP(writer, request)
+	s.mux.ServeHTTP(s.writer, request)
 
-	if writer.Code != 200 {
-		t.Errorf("Response code is %v", writer.Code)
-	}
+	c.Check(s.writer.Code, Equals, 200)
 }
