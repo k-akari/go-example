@@ -13,22 +13,22 @@ import (
 	"github.com/k-akari/go-example/repository"
 )
 
-func HandleUsers(user repository.IUser) http.HandlerFunc {
+func HandleUsers(u repository.IUser) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var err error
 		switch r.Method {
 		case "GET":
 			if path.Base(r.URL.Path) == "users" {
-				err = listUsers(w, r, user)
+				err = listUsers(w, r, u)
 			} else {
-				err = showUser(w, r, user)
+				err = showUser(w, r, u)
 			}
 		case "POST":
-			err = createUser(w, r, user)
+			err = createUser(w, r, u)
 		case "PATCH":
-			err = updateUser(w, r, user)
+			err = updateUser(w, r, u)
 		case "DELETE":
-			err = deleteUser(w, r, user)
+			err = deleteUser(w, r, u)
 		default:
 			http.Error(w, r.Method+" method not allowed", http.StatusMethodNotAllowed)
 		}

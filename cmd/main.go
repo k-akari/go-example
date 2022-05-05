@@ -9,7 +9,7 @@ import (
 )
 
 func main() {
-	http.HandleFunc("/users/", controller.HandleUsers(&repository.User{Db: repository.DB}))
+	http.HandleFunc("/users/", controller.HandleUsers(&repository.User{DB: repository.DB}))
 
 	server := &http.Server{
 		Addr:           "0.0.0.0:8080",
