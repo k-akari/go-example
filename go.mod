@@ -3,7 +3,7 @@ module github.com/k-akari/go-example
 go 1.18
 
 require (
-	github.com/lib/pq v1.10.5
+	github.com/lib/pq v1.10.6
 	gopkg.in/check.v1 v1.0.0-20201130134442-10cb98267c6c
 )
 
