@@ -5,8 +5,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"io"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"path"
@@ -15,49 +13,40 @@ import (
 	"github.com/k-akari/go-example/repository"
 )
 
-type userCreateRequest struct {
-	Name     string `json:"name"`
-	Email    string `json:"email"`
-	Password string `json:"password"`
-}
-
-type userUpdateRequest struct {
-	Name  string `json:"name"`
-	Email string `json:"email"`
-}
-
-func Users(w http.ResponseWriter, r *http.Request) {
-	var err error
-	switch r.Method {
-	case "GET":
-		if path.Base(r.URL.Path) == "users" {
-			err = listUsers(w, r)
-		} else {
-			err = showUser(w, r)
+func HandleUsers(u repository.IUser) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		var err error
+		switch r.Method {
+		case "GET":
+			if path.Base(r.URL.Path) == "users" {
+				err = listUsers(w, r, u)
+			} else {
+				err = showUser(w, r, u)
+			}
+		case "POST":
+			err = createUser(w, r, u)
+		case "PATCH":
+			err = updateUser(w, r, u)
+		case "DELETE":
+			err = deleteUser(w, r, u)
+		default:
+			http.Error(w, r.Method+" method not allowed", http.StatusMethodNotAllowed)
 		}
-	case "POST":
-		err = createUser(w, r)
-	case "PATCH":
-		err = updateUser(w, r)
-	case "DELETE":
-		err = deleteUser(w, r)
-	default:
-		http.Error(w, r.Method+" method not allowed", http.StatusMethodNotAllowed)
-	}
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
 	}
 }
 
-func showUser(w http.ResponseWriter, r *http.Request) (err error) {
+func showUser(w http.ResponseWriter, r *http.Request, user repository.IUser) (err error) {
 	id, err := strconv.Atoi(path.Base(r.URL.Path))
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
 
-	user, err := repository.GetUser(id)
+	err = user.Fetch(id)
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -74,10 +63,10 @@ func showUser(w http.ResponseWriter, r *http.Request) (err error) {
 	return
 }
 
-func listUsers(w http.ResponseWriter, r *http.Request) (err error) {
-	users, err := repository.ListUsers()
+func listUsers(w http.ResponseWriter, r *http.Request, user repository.IUser) (err error) {
+	users, err := user.List()
 	if err != nil {
-		fmt.Println("Cannot find users")
+		fmt.Println(err)
 		return
 	}
 
@@ -92,15 +81,12 @@ func listUsers(w http.ResponseWriter, r *http.Request) (err error) {
 	return
 }
 
-func createUser(w http.ResponseWriter, r *http.Request) (err error) {
-	body, err := ioutil.ReadAll(io.LimitReader(r.Body, 1048576)) // 1MiB
-	if err != nil {
-		panic(err)
-	}
-	defer r.Body.Close()
+func createUser(w http.ResponseWriter, r *http.Request, user repository.IUser) (err error) {
+	len := r.ContentLength
+	body := make([]byte, len)
+	r.Body.Read(body)
 
-	var reqParams userCreateRequest
-	if err = json.Unmarshal(body, &reqParams); err != nil {
+	if err = json.Unmarshal(body, &user); err != nil {
 		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 		w.WriteHeader(500)
 		if err := json.NewEncoder(w).Encode(err); err != nil {
@@ -109,7 +95,6 @@ func createUser(w http.ResponseWriter, r *http.Request) (err error) {
 		return
 	}
 
-	user := repository.User{UUID: repository.CreateUUID(), Name: reqParams.Name, Email: reqParams.Email, Password: reqParams.Password}
 	err = user.Create()
 	if err != nil {
 		w.WriteHeader(500)
@@ -126,26 +111,27 @@ func createUser(w http.ResponseWriter, r *http.Request) (err error) {
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(201)
 	fmt.Fprint(w, buf.String())
 	return
 }
 
-func updateUser(w http.ResponseWriter, r *http.Request) (err error) {
+func updateUser(w http.ResponseWriter, r *http.Request, user repository.IUser) (err error) {
 	id, err := strconv.Atoi(path.Base(r.URL.Path))
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
 
-	body, err := ioutil.ReadAll(io.LimitReader(r.Body, 1048576)) // 1MiB
+	err = user.Fetch(id)
 	if err != nil {
-		panic(err)
+		return
 	}
-	defer r.Body.Close()
 
-	var reqParams userUpdateRequest
-	if err = json.Unmarshal(body, &reqParams); err != nil {
+	len := r.ContentLength
+	body := make([]byte, len)
+	r.Body.Read(body)
+
+	if err = json.Unmarshal(body, &user); err != nil {
 		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 		w.WriteHeader(500)
 		if err := json.NewEncoder(w).Encode(err); err != nil {
@@ -154,7 +140,6 @@ func updateUser(w http.ResponseWriter, r *http.Request) (err error) {
 		return
 	}
 
-	user := repository.User{ID: id, Name: reqParams.Name, Email: reqParams.Email}
 	err = user.Update()
 	if err != nil {
 		fmt.Println(err)
@@ -172,14 +157,14 @@ func updateUser(w http.ResponseWriter, r *http.Request) (err error) {
 	return
 }
 
-func deleteUser(w http.ResponseWriter, r *http.Request) (err error) {
+func deleteUser(w http.ResponseWriter, r *http.Request, user repository.IUser) (err error) {
 	id, err := strconv.Atoi(path.Base(r.URL.Path))
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
 
-	user, err := repository.GetUser(id)
+	err = user.Fetch(id)
 	if err != nil {
 		fmt.Println(err)
 		return
